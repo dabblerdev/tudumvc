@@ -35,7 +35,7 @@ tar zxvf ./linux64.tgz --strip=1
    * **NOTE:** It is optional to create an `urbit` directory, but note that the current tarball unpacks all of its files directly to the directory into which it is unpacked - if you want to contain those files, we recommend you create a directory to house these files.
     
 ### Step 3 - Booting a Fake Ship
-1. From the directory where you downloaded and unpacked the Urbit binary, boot yourself a fake ship.  I like to use the galaxy `~pen`, but you could use `~zod` or `~rabsef-bicrym` or (quite literally) any other Urbit ID you choose (_but not an invalid Urbit ID_).  To boot a fake ship, use a command like the following (replacing the ship with your preferred ship ID):
+1. From the directory where you downloaded and unpacked the Urbit binary, boot yourself a fake (offline) ship using the -F option.  I like to use the galaxy `~pen`, but you could use `~zod` or `~rabsef-bicrym` or (quite literally) any other Urbit ID you choose (_but not an invalid Urbit ID_).  To boot a fake ship, use a command like the following (replacing the ship with your preferred ship ID):
 ```
 ./urbit -F pen
 ```
@@ -45,7 +45,7 @@ tar zxvf ./linux64.tgz --strip=1
     * Switch between the `dojo` and the `chat-cli` using `CTRL+X`
     * Access landscape using the IP address of your ship and the port number to which it has bound
       * **NOTE:** You can bind to port 80, but you may need to allow for [non-root-port-binding](https://cwiki.apache.org/confluence/display/HTTPD/NonRootPortBinding) (**DO NOT RUN ./urbit AS ROOT TO CIRCUMVENT THIS**)
-      * Your ship's currently bound port number is noted in the boot sequence:
+      * Your ship's currently bound port number is noted in the boot sequence, as is indicated below as 8080:
       <pre><code>
       urbit 1.0
       boot: home is /home/my-user/urbit/pen
@@ -65,7 +65,7 @@ tar zxvf ./linux64.tgz --strip=1
       http: loopback live on http://localhost:12321
       pier (11782): live
       </code></pre>
-    * Use your `code` to log in to landscape - enter `+code` into the dojo to get your code
+    * Use your `code` to log in to landscape which you will access by opening a browser to http://localhost:8080 (in this example). To get your code, enter `+code` into the dojo 
 
 ### Step 4 - Prepare a Development Environment
 After you've booted your fake ship, you'll want to:
@@ -78,7 +78,7 @@ After you've booted your fake ship, you'll want to:
 **Mounting the Pier**
 Your urbit's filesystem is called `%clay`.  `%clay` is a `vane` (or [kernel module](https://urbit.org/docs/glossary/vane/)) of `arvo`.  The other `arvo` `vane`s are called `%ames` (networking), `%behn` (pronounced 'bean' or 'been' - timer), `%dill` (terminal driver), `%eyre` (pronounced 'air' or 'ayer', client-side HTTP services), `%ford` (build system), `%gall` (applications), `%iris` (server-side HTTP services), and `%jael` (security).  In this guide, we'll focus mainly on `%clay` and `%gall`.
 
-On first boot, your urbit's filesystem will not be mounted in your Unix filesystem - you can `cd <my-pier>` and nothing will be in there.  And yet, the ship will still work.  You only _need_ to mount your filesystem in Unix if you want to edit files outside of your urbit's operating system.  And, since there isn't a great option for editing files within Urbit (**yet** (TM)), we're going to be editing most of our files from outside Urbit.
+On first boot, your urbit's filesystem will not be mounted in your Unix filesystem - you can `cd <my-pier>` and nothing will be in there.  And yet, the ship will still work.  You only _need_ to mount your filesystem in Unix if you want to edit files outside of your urbit's operating system.  And, since there isn't a great option for editing files within Urbit (**yet** (TM)), we're going to be editing most of our files from the linux (or Unix based) filesystem, outside Urbit.
 
 From the dojo, key in `|mount %` and hit enter.  If successful, you'll see some output like this:
 ```
@@ -101,10 +101,10 @@ Now that we've mounted our pier's filesystem, let's go ahead and copy our pier t
 You may wonder why we made a backup of our pier.  We did that so that we can develop on our existing pier wantonly and, should that result in a terminal failure, simply blow up the existing pier (`rm -r <your-pier>`) and copy our fresh copy back to the same location (`cp -r <your-pier>-bak <your-pier>`).  If you're anything like me, it's extremely unlikely that you're going to make a mistake, _ever_, but better safe than sorry.  But, if we're planning on allowing ourselves the escape route of simply recreating our pier from scratch, we should probably make sure we don't take our dev files with us on the sunk pier.
 
 **Creating a Development Routine**
-Let's create a folder to house our development files.  We're going to create all of our new files here, then use a bash script to copy them into our urbit's pier.  Doing our development in this way affords us free reign to blow up our pier directory, replace it with a backup and restart our copy routine, getting us right back to where we were before we ruined our last ship!
-   * Create a folder with a name of your choosing (`mkdir <folder-name>`).  I'll use `~/urbit/devops` and we'll pretend my pier is `~/urbit/pen`
+Let's create a folder to house our development files.  We're going to create all of our new files here, then use a bash script to copy them into our urbit's pier.  Doing our development in this way affords us free reign to blow up our pier directory, replace it with a backup and restart our copy routine to get our hard-earned dev files into the fresh fake ship, getting us right back to where we were before we ruined our last ship!
+   * Create a folder where you will keep all of your apps work, with a name of your choosing (`mkdir <folder-name>`).  I'll use `~/urbit/devops` and we'll pretend my pier is `~/urbit/pen`
       * Within that new folder, create an `app`, `sur`, `mar`, `gen` and `lib` folder, to mirror those folders from our pier's `home` directory
-   * Create a shell script file and use [this script](supplemental/dev.sh) (or one of your own devising) that will copy the contents of `/devops` to a hard-coded directory (`~/urbit/pen`) or take a directory as an argument (our version uses a directory as an argument - we'll assume you're using that from here)
+   * Create a shell script file and use [this script](supplemental/dev.sh) (or one of your own devising) which will copy the contents of `/devops` to a hard-coded directory (`~/urbit/pen`) or take a directory as an argument (our version uses a directory as an argument - we'll assume you're using that from here)
    * Open two terminal sessions simultaneously, boot your urbit in one and start up your shell script in the other.  Assuming the above configuration, we would start our shell script with something like `bash dev.sh ~/urbit/pen/home`.  You should have something like this going on:
    
       ![Image of Dev Environment](supplemental/devops.png)
